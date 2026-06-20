@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # 1. Cấu hình dịch vụ Database MySQL
+  fitness-db:
+    image: mysql:8.0
+    container_name: fitness-mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: 123 # Mật khẩu root của MySQL
+      MYSQL_DATABASE: fitness_db        # Tự động tạo luôn database tên là fitness_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Tự động chạy file init-db.sql để tạo bảng khi database khởi chạy lần đầu
+      - ./src/main/resources/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - fitness-network
+
+  # 2. Cấu hình phpMyAdmin để kiểm tra database trực quan qua Web Browser
+  fitness-phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: fitness-phpmyadmin-container
+    environment:
+      PMA_HOST: fitness-db # Chỉ định kết nối tới service mysql ở trên
+      PMA_USER: root
+      PMA_PASSWORD: 123
+    ports:
+      - "8085:80" # Bấm vào http://localhost:8085 trên trình duyệt để kiểm tra DB
+    depends_on:
+      - fitness-db
+    networks:
+      - fitness-network
+
+  # 3. Cấu hình ứng dụng Spring Boot Backend
+  fitness-app:
+    build: .
+    container_name: fitness-backend-container
+    ports:
+      - "8081:8081" # Chạy ứng dụng trên port 8081 như đã thống nhất
+    environment:
+      # Ghi đè cấu hình url để Spring Boot kết nối tới container mysql thông qua mạng nội bộ Docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://fitness-db:3306/fitness_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 123
+    depends_on:
+      - fitness-db
+    networks:
+      - fitness-network
+
+volumes:
+  mysql_data:
+
+networks:
+  fitness-network:
+    driver: bridge
