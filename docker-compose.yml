@@ -36,6 +36,7 @@ services:
   fitness-app:
     build: .
     container_name: fitness-backend-container
+    restart: on-failure
     ports:
       - "8081:8081" # Chạy ứng dụng trên port 8081 như đã thống nhất
     environment:
