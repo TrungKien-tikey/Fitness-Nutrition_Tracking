@@ -8,9 +8,6 @@ import lombok.Data;
 @Data
 public class HealthMetricRequest {
 
-    @NotNull(message = "User ID cannot be null")
-    private Long userId;
-
     @NotNull(message = "Height cannot be null")
     @Min(value = 50, message = "Height must be greater than 50cm")
     private Double height;
