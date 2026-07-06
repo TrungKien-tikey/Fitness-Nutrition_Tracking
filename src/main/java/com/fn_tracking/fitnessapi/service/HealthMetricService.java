@@ -13,9 +13,18 @@ public class HealthMetricService {
 
     private final HealthMetricRepository healthMetricRepository;
 
-    // Truyền trực tiếp User vào hàm này
     public HealthMetric calculateAndSaveMetrics(HealthMetricRequest request, User user) {
         
+        // 1. Kiểm tra (Validate) dữ liệu đầu vào trước khi tính toán
+        if (request.getHeight() <= 0 || request.getWeight() <= 0) {
+            throw new IllegalArgumentException("Chiều cao và cân nặng phải lớn hơn 0");
+        }
+
+        if (request.getGender() == null || 
+           (!request.getGender().equalsIgnoreCase("MALE") && !request.getGender().equalsIgnoreCase("FEMALE"))) {
+            throw new IllegalArgumentException("Giới tính không hợp lệ. Chỉ chấp nhận MALE hoặc FEMALE");
+        }
+
         // 2. Tính BMI = Cân nặng (kg) / (Chiều cao (m) ^ 2)
         double heightInMeters = request.getHeight() / 100;
         double bmi = request.getWeight() / (heightInMeters * heightInMeters);
