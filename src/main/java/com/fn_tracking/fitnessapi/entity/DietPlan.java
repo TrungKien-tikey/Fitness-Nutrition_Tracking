@@ -1,5 +1,6 @@
 package com.fn_tracking.fitnessapi.entity;
 
+import com.fn_tracking.fitnessapi.dto.FitnessGoal;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -21,7 +22,9 @@ public class DietPlan {
     @JoinColumn(name = "user_id", nullable = false)
     private User user; // Nhiều thực đơn có thể thuộc về 1 User
 
-    private String goal;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private FitnessGoal goal;
 
     @Column(name = "menu_json", columnDefinition = "JSON", nullable = false)
     private String menuJson; // Lưu chuỗi JSON lịch ăn 7 ngày 
