@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface DailyLogRepository extends JpaRepository<DailyLog, Long> {
     Optional<DailyLog> findByUserIdAndLogDate(Long userId, LocalDate logDate);
+    List<DailyLog> findByLogDate(LocalDate logDate);
     List<DailyLog> findByUserIdAndLogDateGreaterThanEqualOrderByLogDateDesc(Long userId, LocalDate fromDate);
 }

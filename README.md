@@ -11,7 +11,7 @@ A RESTful Backend API system designed to track body metrics, automatically calcu
 * **Automated Scheduler:** A background process (Cron Job) that automatically scans the database at 20:00 daily to send notification reminders to users who haven't updated their data.
 
 ## 🛠️ Tech Stack
-* **Core Platform & Language:** Java 25 (OpenJDK Eclipse Temurin 25.0.1 LTS), Spring Boot 3.x.
+* **Core Platform & Language:** Java 21 (OpenJDK Eclipse Temurin 21.0.1 LTS), Spring Boot 3.x.
 * **System Security:** Spring Security, JSON Web Token (JWT).
 * **Database:** MySQL, Spring Data JPA, Hibernate (ORM).
 * **GenAI Integration:** LangChain4j library, Google Gemini API.
