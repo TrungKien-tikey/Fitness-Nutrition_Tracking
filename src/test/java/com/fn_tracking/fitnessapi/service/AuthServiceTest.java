@@ -6,25 +6,22 @@ import com.fn_tracking.fitnessapi.dto.RegisterRequest;
 import com.fn_tracking.fitnessapi.entity.User;
 import com.fn_tracking.fitnessapi.repository.UserRepository;
 import com.fn_tracking.fitnessapi.security.JwtTokenProvider;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -34,19 +31,15 @@ class AuthServiceTest {
 
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private JwtTokenProvider jwtTokenProvider;
 
     @Mock
     private PasswordEncoder passwordEncoder;
 
     private AuthService authService;
 
-    private JwtTokenProvider tokenProvider;
-
     @BeforeEach
     void setUp() {
-        tokenProvider = new JwtTokenProvider();
+        JwtTokenProvider tokenProvider = new JwtTokenProvider();
         ReflectionTestUtils.setField(tokenProvider, "jwtSecret", "01234567890123456789012345678901");
         ReflectionTestUtils.setField(tokenProvider, "jwtExpirationInMs", 86400000L);
         authService = new AuthService(userRepository, tokenProvider, passwordEncoder);
@@ -54,7 +47,6 @@ class AuthServiceTest {
 
     @Test
     void registerShouldSaveUserWhenUsernameAndEmailAreAvailable() {
-        // 1. Arrange (Chuẩn bị dữ liệu & giả lập hành vi)
         RegisterRequest request = new RegisterRequest();
         request.setUsername("john");
         request.setPassword("secret123");
@@ -65,20 +57,15 @@ class AuthServiceTest {
         when(passwordEncoder.encode("secret123")).thenReturn("encoded-secret");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // 2. Act (Chạy hàm cần kiểm thử)
         String result = authService.register(request);
 
-        // 3. Assert (Kiểm tra kết quả & xác minh dữ liệu được lưu)
         assertEquals("User registered successfully!", result);
 
-        // Bắt đối tượng User truyền vào hàm save() để kiểm tra thuộc tính bên trong
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository, times(1)).save(userCaptor.capture());
-
-        User savedUser = userCaptor.getValue();
-        assertEquals("john", savedUser.getUsername());
-        assertEquals("john@example.com", savedUser.getEmail());
-        assertEquals("encoded-secret", savedUser.getPassword());
+        verify(userRepository).save(userCaptor.capture());
+        assertEquals("john", userCaptor.getValue().getUsername());
+        assertEquals("john@example.com", userCaptor.getValue().getEmail());
+        assertEquals("encoded-secret", userCaptor.getValue().getPassword());
     }
 
     @Test
@@ -117,7 +104,7 @@ class AuthServiceTest {
 
         assertEquals("john", response.getUsername());
         assertEquals("john@example.com", response.getEmail());
-        assertEquals(true, response.getToken().startsWith("eyJ"));
+        assertTrue(response.getToken().startsWith("eyJ"));
     }
 
     @Test
