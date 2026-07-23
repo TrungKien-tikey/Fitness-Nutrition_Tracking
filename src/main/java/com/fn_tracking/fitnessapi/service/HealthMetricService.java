@@ -1,6 +1,7 @@
 package com.fn_tracking.fitnessapi.service;
 
 import com.fn_tracking.fitnessapi.dto.HealthMetricRequest;
+import com.fn_tracking.fitnessapi.dto.ActivityLevel;
 import com.fn_tracking.fitnessapi.entity.HealthMetric;
 import com.fn_tracking.fitnessapi.entity.User;
 import com.fn_tracking.fitnessapi.repository.HealthMetricRepository;
@@ -38,13 +39,8 @@ public class HealthMetricService {
         }
 
         // 4. Tính TDEE
-        double tdeeMultiplier = switch (request.getActivityLevel().toUpperCase()) {
-            case "SEDENTARY" -> 1.2;          
-            case "LIGHTLY_ACTIVE" -> 1.375;   
-            case "MODERATELY_ACTIVE" -> 1.55; 
-            case "VERY_ACTIVE" -> 1.725;      
-            default -> 1.2;
-        };
+        ActivityLevel activityLevel = request.getActivityLevel();
+        double tdeeMultiplier = activityLevel.getMultiplier();
         double tdee = bmr * tdeeMultiplier;
 
         // 5. Cập nhật hoặc tạo mới

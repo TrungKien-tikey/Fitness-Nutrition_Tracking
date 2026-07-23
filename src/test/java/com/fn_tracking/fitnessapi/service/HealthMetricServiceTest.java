@@ -1,5 +1,6 @@
 package com.fn_tracking.fitnessapi.service;
 
+import com.fn_tracking.fitnessapi.dto.ActivityLevel;
 import com.fn_tracking.fitnessapi.dto.HealthMetricRequest;
 import com.fn_tracking.fitnessapi.entity.HealthMetric;
 import com.fn_tracking.fitnessapi.entity.User;
@@ -36,7 +37,7 @@ class HealthMetricServiceTest {
         request.setWeight(80.0);
         request.setAge(30);
         request.setGender("MALE");
-        request.setActivityLevel("SEDENTARY");
+        request.setActivityLevel(ActivityLevel.SEDENTARY);
 
         User user = User.builder()
                 .id(1L)
@@ -69,7 +70,7 @@ class HealthMetricServiceTest {
         request.setWeight(60.0);
         request.setAge(25);
         request.setGender("FEMALE");
-        request.setActivityLevel("VERY_ACTIVE");
+        request.setActivityLevel(ActivityLevel.VERY_ACTIVE);
 
         User user = User.builder()
                 .id(2L)
@@ -101,7 +102,7 @@ class HealthMetricServiceTest {
         request.setWeight(70.0);
         request.setAge(25);
         request.setGender("ALIEN"); // Cố tình truyền sai
-        request.setActivityLevel("SEDENTARY");
+        request.setActivityLevel(ActivityLevel.SEDENTARY);
 
         User user = User.builder().id(3L).build();
 
@@ -120,7 +121,7 @@ class HealthMetricServiceTest {
         request.setWeight(70.0);
         request.setAge(25);
         request.setGender("MALE");
-        request.setActivityLevel("SEDENTARY");
+        request.setActivityLevel(ActivityLevel.SEDENTARY);
 
         User user = User.builder().id(4L).build();
 

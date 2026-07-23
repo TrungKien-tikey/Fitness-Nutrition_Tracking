@@ -23,6 +23,6 @@ public class HealthMetricRequest {
     @NotBlank(message = "Gender cannot be blank (MALE/FEMALE)")
     private String gender;
 
-    @NotBlank(message = "Activity level cannot be blank")
-    private String activityLevel; // SEDENTARY, LIGHTLY_ACTIVE, MODERATELY_ACTIVE, VERY_ACTIVE
+    @NotNull(message = "Activity level cannot be null")
+    private ActivityLevel activityLevel;
 }
