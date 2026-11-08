@@ -1,8 +1,10 @@
 package com.fn_tracking.fitnessapi.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
+@Schema(description = "Mức độ vận động hằng ngày")
 public enum ActivityLevel {
     SEDENTARY(1.2),
     LIGHTLY_ACTIVE(1.375),

@@ -1,5 +1,6 @@
 package com.fn_tracking.fitnessapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -25,9 +26,10 @@ public class User {
     @Column(unique = true, nullable = false, length = 50)
     private String username;
 
+    @JsonIgnore
     @NotBlank(message = "Password cannot be blank")
     @Size(min = 6, message = "Password must be at least 6 characters")
-    @Column(nullable = false, length = 255) // Chiều dài 255 để lưu mật khẩu sau khi BCrypt hash
+    @Column(nullable = false, length = 255)
     private String password;
 
     @NotBlank(message = "Email cannot be blank")
