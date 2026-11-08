@@ -1,0 +1,491 @@
+openapi: 3.0.3
+info:
+  title: Fitness & Nutrition Tracking API
+  version: 1.0.0
+  description: |
+    REST API for tracking body metrics, calculating nutritional requirements
+    (BMI, BMR, TDEE), and generating personalized 7-day diet plans with
+    Google Gemini.
+
+    **Authentication**
+
+    - `POST /api/auth/register` and `POST /api/auth/login` are public.
+    - Every other endpoint requires a JWT:
+      `Authorization: Bearer <token>`.
+    - A missing or invalid token returns `403 Forbidden`, because the API
+      does not configure a custom `401` authentication entry point.
+  contact:
+    name: Fitness & Nutrition Tracking
+    url: https://github.com/TrungKien-tikey/Fitness-Nutrition_Tracking
+servers:
+  - url: http://localhost:8081
+    description: Local development server
+tags:
+  - name: Authentication
+    description: Account registration and login
+  - name: Health Metrics
+    description: BMI, BMR and TDEE calculation
+  - name: Diet Plans
+    description: AI-generated 7-day diet plans
+  - name: Daily Logs
+    description: Daily nutrition check-ins and history
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new account
+      description: Creates a new user from a unique username, email and password.
+      operationId: register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Account created successfully
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: User registered successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Log in and obtain a JWT
+      description: Validates credentials and returns a signed JSON Web Token.
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authenticated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/health-metrics/calculate:
+    post:
+      tags:
+        - Health Metrics
+      summary: Calculate and store health metrics
+      description: |
+        Computes BMI, BMR and TDEE from the submitted body data for the
+        authenticated user, persists the result and returns it.
+      operationId: calculateHealthMetrics
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthMetricRequest'
+      responses:
+        '200':
+          description: Metrics calculated and stored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthMetricResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/diet-plans/generate:
+    post:
+      tags:
+        - Diet Plans
+      summary: Generate a 7-day diet plan with AI
+      description: |
+        Sends the user's goal and dietary preferences to Google Gemini and
+        stores the returned 7-day meal plan as a JSON string.
+      operationId: generateDietPlan
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DietPlanGenerationRequest'
+      responses:
+        '200':
+          description: Diet plan generated and stored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DietPlanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/diet-plans/latest:
+    get:
+      tags:
+        - Diet Plans
+      summary: Get the latest diet plan
+      description: Returns the most recently generated diet plan of the authenticated user.
+      operationId: getLatestDietPlan
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Latest diet plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DietPlanResponse'
+        '400':
+          description: No diet plan found for the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                timestamp: '2026-07-24T10:15:22+07:00'
+                status: 400
+                error: Bad Request
+                message: No diet plan found
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/daily-logs/check-in:
+    post:
+      tags:
+        - Daily Logs
+      summary: Check in for a day
+      description: Records calories consumed and the current weight for a given day.
+      operationId: checkIn
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DailyLogCheckInRequest'
+      responses:
+        '200':
+          description: Check-in saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyLogResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/daily-logs/history:
+    get:
+      tags:
+        - Daily Logs
+      summary: Get recent check-in history
+      description: Returns the most recent check-ins of the authenticated user.
+      operationId: getHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: days
+          in: query
+          required: false
+          description: Number of most recent days to return.
+          schema:
+            type: integer
+            minimum: 1
+            default: 7
+          example: 7
+      responses:
+        '200':
+          description: Recent check-in history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DailyLogResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Paste the JWT returned by `POST /api/auth/login`.
+  responses:
+    BadRequest:
+      description: Invalid input, validation failure, or business rule violation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            timestamp: '2026-07-24T10:15:22+07:00'
+            status: 400
+            error: Validation Failed
+            message:
+              username: Username cannot be blank
+    Forbidden:
+      description: Missing or invalid JWT
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            timestamp: '2026-07-24T10:15:22+07:00'
+            status: 403
+            error: Forbidden
+            message: Access Denied
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - password
+        - email
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+          example: johndoe
+        password:
+          type: string
+          minLength: 6
+          format: password
+          example: secret123
+        email:
+          type: string
+          format: email
+          example: johndoe@example.com
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: johndoe
+        password:
+          type: string
+          format: password
+          example: secret123
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: 'JWT to send as `Authorization: Bearer <token>`'
+          example: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huZG9lIn0.signature
+        username:
+          type: string
+          example: johndoe
+        email:
+          type: string
+          format: email
+          example: johndoe@example.com
+    HealthMetricRequest:
+      type: object
+      required:
+        - height
+        - weight
+        - age
+        - gender
+        - activityLevel
+      properties:
+        height:
+          type: number
+          format: double
+          minimum: 50
+          description: Height in centimeters.
+          example: 170.0
+        weight:
+          type: number
+          format: double
+          minimum: 10
+          description: Weight in kilograms.
+          example: 65.0
+        age:
+          type: integer
+          minimum: 1
+          example: 25
+        gender:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+          example: MALE
+        activityLevel:
+          $ref: '#/components/schemas/ActivityLevel'
+    HealthMetricResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        height:
+          type: number
+          format: double
+          example: 170.0
+        weight:
+          type: number
+          format: double
+          example: 65.0
+        bmi:
+          type: number
+          format: double
+          description: Body Mass Index.
+          example: 22.49
+        bmr:
+          type: number
+          format: double
+          description: Basal Metabolic Rate.
+          example: 1650.0
+        tdee:
+          type: number
+          format: double
+          description: Total Daily Energy Expenditure.
+          example: 2557.5
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-07-24T10:15:22+07:00'
+    DietPlanGenerationRequest:
+      type: object
+      required:
+        - goal
+      properties:
+        goal:
+          $ref: '#/components/schemas/FitnessGoal'
+        dietaryNotes:
+          type: string
+          description: Free-text dietary preferences or restrictions.
+          example: Prefer low-carb meals
+        excludedFoods:
+          type: array
+          description: Foods that must not appear in the plan.
+          items:
+            type: string
+          example:
+            - shellfish
+        preferredCuisines:
+          type: array
+          description: Cuisines the user enjoys.
+          items:
+            type: string
+          example:
+            - Asian
+    DietPlanResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        goal:
+          $ref: '#/components/schemas/FitnessGoal'
+        menuJson:
+          type: string
+          description: The 7-day meal plan as a JSON string.
+          example: '{"monday":{"breakfast":"Oatmeal","lunch":"Chicken salad","dinner":"Salmon"}}'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-07-24T10:15:22+07:00'
+    DailyLogCheckInRequest:
+      type: object
+      required:
+        - caloriesIn
+        - currentWeight
+      properties:
+        caloriesIn:
+          type: integer
+          minimum: 0
+          example: 2200
+        currentWeight:
+          type: number
+          format: double
+          minimum: 10
+          description: Current weight in kilograms.
+          example: 64.5
+        logDate:
+          type: string
+          format: date
+          description: Date of the log. Must not be in the future.
+          example: '2026-07-24'
+    DailyLogResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        logDate:
+          type: string
+          format: date
+          example: '2026-07-24'
+        caloriesIn:
+          type: integer
+          example: 2200
+        currentWeight:
+          type: number
+          format: double
+          example: 64.5
+    ActivityLevel:
+      type: string
+      description: Daily activity level used to derive the TDEE multiplier.
+      enum:
+        - SEDENTARY
+        - LIGHTLY_ACTIVE
+        - MODERATELY_ACTIVE
+        - VERY_ACTIVE
+      example: MODERATELY_ACTIVE
+    FitnessGoal:
+      type: string
+      description: Fitness goal used to adjust the calorie target.
+      enum:
+        - WEIGHT_LOSS
+        - MAINTENANCE
+        - MUSCLE_GAIN
+      example: WEIGHT_LOSS
+    ErrorResponse:
+      type: object
+      description: |
+        Error payload returned by the global exception handler. `message` is a
+        string for business errors and an object of field-to-message pairs for
+        validation errors.
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: '2026-07-24T10:15:22+07:00'
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Validation Failed
+        message:
+          oneOf:
+            - type: string
+            - type: object
+              additionalProperties:
+                type: string
+          example: Username cannot be blank
