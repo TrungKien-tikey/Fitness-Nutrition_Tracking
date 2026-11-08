@@ -1,5 +1,5 @@
-# Bước 1: Sử dụng Image JDK 21 để chạy ứng dụng (Sử dụng Eclipse Temurin chuẩn doanh nghiệp)
-FROM eclipse-temurin:21-jre-alpine
+# Bước 1: Sử dụng Image JDK 17 để chạy ứng dụng (Sử dụng Eclipse Temurin chuẩn doanh nghiệp)
+FROM eclipse-temurin:17-jre-alpine
 
 # Bước 2: Thiết lập thư mục làm việc bên trong Container
 WORKDIR /app

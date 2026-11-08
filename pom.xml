@@ -14,7 +14,7 @@
 	<name>fitness-nutrition-api</name>
 	<description>Fitness and Nutrition Tracking API with GenAI</description>
 	<properties>
-		<java.version>21</java.version>
+		<java.version>17</java.version>
 		<langchain4j.version>0.36.2</langchain4j.version>
 		<lombok.version>1.18.36</lombok.version>
 	</properties>
