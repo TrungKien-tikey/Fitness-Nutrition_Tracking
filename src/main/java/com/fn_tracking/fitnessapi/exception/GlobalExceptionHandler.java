@@ -21,9 +21,9 @@ public class GlobalExceptionHandler {
         errorResponse.put("timestamp", LocalDateTime.now());
         errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
         errorResponse.put("error", "Bad Request");
-        errorResponse.put("message", ex.getMessage()); // Sẽ lấy được câu "Username is already taken!"
+        errorResponse.put("message", ex.getMessage());
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST); // Trả về HTTP 400
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     // 2. Xử lý các lỗi validation từ @Valid (khi truyền thiếu data)
@@ -43,6 +43,6 @@ public class GlobalExceptionHandler {
         errorResponse.put("error", "Validation Failed");
         errorResponse.put("message", fieldErrors);
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST); // Trả về HTTP 400
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

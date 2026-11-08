@@ -17,35 +17,31 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration}")
     private long jwtExpirationInMs;
 
-    // Thay đổi kiểu trả về thành SecretKey cho bản JJWT 0.12.x
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    // 1. Tạo JWT Token từ Username (Cú pháp mới)
     public String generateToken(String username) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
         return Jwts.builder()
-                .subject(username)       // Bỏ chữ "set"
-                .issuedAt(new Date())    // Bỏ chữ "set"
-                .expiration(expiryDate)  // Bỏ chữ "set"
-                .signWith(getSigningKey()) // Không cần truyền cứng SignatureAlgorithm nữa
+                .subject(username)
+                .issuedAt(new Date())
+                .expiration(expiryDate)
+                .signWith(getSigningKey())
                 .compact();
     }
 
-    // 2. Trích xuất Username từ Token (Cú pháp mới)
     public String getUsernameFromToken(String token) {
-        return Jwts.parser()                      // Dùng parser() thay vì parserBuilder()
-                .verifyWith(getSigningKey())      // Dùng verifyWith() thay vì setSigningKey()
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
                 .build()
-                .parseSignedClaims(token)         // Dùng parseSignedClaims()
-                .getPayload()                     // Dùng getPayload() thay vì getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject();
     }
 
-    // 3. Kiểm tra tính hợp lệ của Token
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
