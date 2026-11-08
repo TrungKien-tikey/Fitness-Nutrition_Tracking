@@ -24,6 +24,7 @@ Fitness & Nutrition Tracking API cung cấp nền tảng theo dõi sức khỏe 
 - Check-in dinh dưỡng hằng ngày và xem lịch sử check-in.
 - Scheduler tự động gửi nhắc nhở cho người dùng chưa check-in.
 - Kiểm thử đơn vị cho các service và scheduler.
+- Bộ kiểm thử API bằng Postman cho tất cả endpoint (bao gồm trường hợp lỗi và xác thực).
 - Tài liệu API tự động bằng Springdoc OpenAPI và Swagger UI.
 
 ## 3. Công nghệ sử dụng
@@ -52,6 +53,7 @@ Fitness & Nutrition Tracking API cung cấp nền tảng theo dõi sức khỏe 
 - phpMyAdmin
 - Maven Wrapper
 - JUnit 5 và Mockito
+- Postman (kiểm thử API)
 
 ### Frontend
 
@@ -194,6 +196,28 @@ docker compose up -d --build
 ```bash
 mvnw.cmd test
 ```
+
+### Kiểm thử API bằng Postman
+
+Bộ collection nằm tại [`postman/Fitness_Nutrition.postman_collection.json`](postman/Fitness_Nutrition.postman_collection.json), gồm 4 folder: `Auth`, `Health Metrics`, `Diet Plans`, `Daily Logs`.
+
+1. Mở Postman, chọn **Import** và trỏ tới file collection trên.
+2. Đảm bảo backend đang chạy tại `http://localhost:8081` (biến `base_url` trong collection).
+3. Chạy toàn bộ collection (Runner) hoặc từng request/folder tùy ý.
+
+Collection tự động đăng nhập trước các request cần xác thực: nếu tài khoản kiểm thử chưa tồn tại, collection tự đăng ký rồi lấy token và lưu vào biến `bearer_token`. Vì vậy không cần chạy `Login` thủ công hay copy token.
+
+Thông tin tài khoản kiểm thử (giá trị giả, chỉ dùng cho môi trường local):
+
+```text
+username: test_user
+password: Test@12345
+email:    test_user@example.com
+```
+
+> Mật khẩu trên là tài khoản test cục bộ, không phải thông tin thật nên không cần ẩn. Nếu muốn tách khỏi collection, có thể chuyển `test_username`, `test_password`, `test_email` sang Postman Environment và không commit file environment đó.
+
+> Folder `Diet Plans` cần `GEMINI_API_KEY` hợp lệ trong `.env` để tạo thực đơn; nếu chưa có key, test của endpoint này chấp nhận phản hồi `400` (AI chưa cấu hình) thay vì `200`.
 
 ### Tài liệu API
 
