@@ -115,6 +115,44 @@ class DietPlanServiceTest {
         verify(dietPlanRepository, never()).save(org.mockito.ArgumentMatchers.any());
     }
 
+    @Test
+    void generateAndSaveWeeklyPlanShouldRejectDayWithFewerThanThreeMeals() {
+        User user = User.builder().id(1L).username("john").build();
+        HealthMetric metric = HealthMetric.builder().tdee(2200.0).build();
+
+        DietPlanGenerationRequest request = new DietPlanGenerationRequest();
+        request.setGoal(FitnessGoal.MAINTENANCE);
+
+        when(healthMetricRepository.findByUserId(1L)).thenReturn(Optional.of(metric));
+        when(chatLanguageModel.generate(anyString())).thenReturn(buildPlanJsonWithMeals(2));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> dietPlanService.generateAndSaveWeeklyPlan(user, request));
+
+        assertTrue(exception.getMessage().contains("AI response is not a valid weekly diet plan JSON"));
+        verify(dietPlanRepository, never()).save(org.mockito.ArgumentMatchers.any(DietPlan.class));
+    }
+
+    private String buildPlanJsonWithMeals(int mealsPerDay) {
+        StringBuilder meals = new StringBuilder();
+        for (int i = 0; i < mealsPerDay; i++) {
+            meals.append("{\"name\":\"Meal").append(i + 1).append("\",\"items\":[\"Food\"]}");
+            if (i < mealsPerDay - 1) {
+                meals.append(",");
+            }
+        }
+
+        StringBuilder days = new StringBuilder();
+        for (int day = 1; day <= 7; day++) {
+            days.append("{\"day\":").append(day).append(",\"meals\":[").append(meals).append("]}");
+            if (day < 7) {
+                days.append(",");
+            }
+        }
+
+        return "{\"goal\":\"MAINTENANCE\",\"targetDailyCalories\":2200,\"days\":[" + days + "]}";
+    }
+
     private String buildWeeklyPlanJson() {
         StringBuilder builder = new StringBuilder();
         builder.append("```json\n{")

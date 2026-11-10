@@ -16,9 +16,12 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -91,6 +94,30 @@ class DailyLogServiceTest {
         assertSame(existingLog, savedLog);
         assertEquals(1800, savedLog.getCaloriesIn());
         assertEquals(71.0, savedLog.getCurrentWeight());
+    }
+
+    @Test
+    void checkInShouldUseTodayWhenLogDateIsMissing() {
+        DailyLogCheckInRequest request = new DailyLogCheckInRequest();
+        request.setCaloriesIn(2000);
+        request.setCurrentWeight(70.0);
+
+        User user = User.builder()
+                .id(10L)
+                .username("john")
+                .email("john@example.com")
+                .password("encoded-secret")
+                .build();
+
+        LocalDate before = LocalDate.now();
+        when(dailyLogRepository.findByUserIdAndLogDate(eq(10L), any(LocalDate.class))).thenReturn(Optional.empty());
+        when(dailyLogRepository.save(any(DailyLog.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        DailyLog savedLog = dailyLogService.checkIn(request, user);
+        LocalDate after = LocalDate.now();
+
+        assertFalse(savedLog.getLogDate().isBefore(before));
+        assertFalse(savedLog.getLogDate().isAfter(after));
     }
 
     @Test

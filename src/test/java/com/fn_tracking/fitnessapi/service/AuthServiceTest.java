@@ -85,6 +85,23 @@ class AuthServiceTest {
     }
 
     @Test
+    void registerShouldRejectDuplicateEmail() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("jane");
+        request.setPassword("secret123");
+        request.setEmail("john@example.com");
+
+        when(userRepository.existsByUsername("jane")).thenReturn(false);
+        when(userRepository.existsByEmail("john@example.com")).thenReturn(true);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> authService.register(request));
+
+        assertEquals("Email is already in use!", exception.getMessage());
+        verify(userRepository, never()).save(any());
+        verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
     void loginShouldReturnAuthResponseWhenPasswordMatches() {
         LoginRequest request = new LoginRequest();
         request.setUsername("john");
