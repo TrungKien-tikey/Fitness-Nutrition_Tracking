@@ -5,6 +5,7 @@ target/
 # --- IDE Settings ---
 .idea/
 .vscode/
+opencode.json
 *.com
 *.class
 *.log

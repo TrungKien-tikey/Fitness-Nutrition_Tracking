@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS daily_logs (
 );
 
 -- 5. Chèn dữ liệu mẫu (Seed Data) để tiện test
+-- Tài khoản demo: intern_test / secret123
 INSERT INTO users (id, username, password, email) 
-VALUES (1, 'intern_test', '$2a$10$Xptf.d.f4Yp1...', 'test@fitness.com')
+VALUES (1, 'intern_test', '$2a$10$c0aWpKL7NMrXKR6wwfYIwO9Ju2qNMh40qDespWrGjRznrBpNHNc1O', 'test@fitness.com')
 ON DUPLICATE KEY UPDATE id=id;

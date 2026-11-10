@@ -51,7 +51,7 @@ paths:
             text/plain:
               schema:
                 type: string
-                example: User registered successfully
+                example: User registered successfully!
         '400':
           $ref: '#/components/responses/BadRequest'
   /api/auth/login:
@@ -159,7 +159,7 @@ paths:
                 timestamp: '2026-07-24T10:15:22+07:00'
                 status: 400
                 error: Bad Request
-                message: No diet plan found
+                message: No diet plan found for this user
         '403':
           $ref: '#/components/responses/Forbidden'
   /api/daily-logs/check-in:
@@ -241,16 +241,9 @@ components:
             message:
               username: Username cannot be blank
     Forbidden:
-      description: Missing or invalid JWT
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            timestamp: '2026-07-24T10:15:22+07:00'
-            status: 403
-            error: Forbidden
-            message: Access Denied
+      description: |
+        Missing or invalid JWT. Spring Security returns 403 with an empty body
+        because the API does not configure a custom authentication entry point.
   schemas:
     RegisterRequest:
       type: object

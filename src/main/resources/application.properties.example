@@ -20,7 +20,7 @@ spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
 
 # 5. Third-party API Integration (Google Gemini AI)
 gemini.api.key=${GEMINI_API_KEY:}
-gemini.model.name=${GEMINI_MODEL:gemini-1.5-flash}
+gemini.model.name=${GEMINI_MODEL:gemini-3.5-flash}
 
 # 6. JWT Configuration
 jwt.secret=${JWT_SECRET:}

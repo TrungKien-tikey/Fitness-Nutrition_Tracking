@@ -42,7 +42,7 @@ services:
       DB_USERNAME: ${DB_USERNAME:-root}
       DB_PASSWORD: ${DB_PASSWORD:-}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-1.5-flash}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash}
       JWT_SECRET: ${JWT_SECRET:-}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
     depends_on:
