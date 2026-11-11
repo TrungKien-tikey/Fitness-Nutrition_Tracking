@@ -1,10 +1,11 @@
-package com.fn_tracking.fitnessapi.service;
+package com.fn_tracking.fitnessapi.unit.service;
 
 import com.fn_tracking.fitnessapi.dto.ActivityLevel;
 import com.fn_tracking.fitnessapi.dto.HealthMetricRequest;
 import com.fn_tracking.fitnessapi.entity.HealthMetric;
 import com.fn_tracking.fitnessapi.entity.User;
 import com.fn_tracking.fitnessapi.repository.HealthMetricRepository;
+import com.fn_tracking.fitnessapi.service.HealthMetricService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

@@ -1,5 +1,6 @@
-package com.fn_tracking.fitnessapi.security;
+package com.fn_tracking.fitnessapi.unit.security;
 
+import com.fn_tracking.fitnessapi.security.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;

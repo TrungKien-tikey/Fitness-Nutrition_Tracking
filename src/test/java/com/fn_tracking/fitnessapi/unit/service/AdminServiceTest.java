@@ -1,4 +1,4 @@
-package com.fn_tracking.fitnessapi.service;
+package com.fn_tracking.fitnessapi.unit.service;
 
 import com.fn_tracking.fitnessapi.dto.AdminStatsResponse;
 import com.fn_tracking.fitnessapi.dto.AdminUserResponse;
@@ -7,6 +7,7 @@ import com.fn_tracking.fitnessapi.entity.User;
 import com.fn_tracking.fitnessapi.repository.DailyLogRepository;
 import com.fn_tracking.fitnessapi.repository.DietPlanRepository;
 import com.fn_tracking.fitnessapi.repository.UserRepository;
+import com.fn_tracking.fitnessapi.service.AdminService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -177,6 +178,98 @@ class AdminServiceTest {
         AdminStatsResponse stats = adminService.getStats();
 
         assertEquals(0L, stats.getUsersMissingCheckInToday());
+    }
+
+    @Test
+    void getUsersShouldReturnEmptyPageWhenNoUserMatches() {
+        when(userRepository.findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                eq("missing"), eq("missing"), any(Pageable.class)))
+                .thenReturn(Page.empty(PageRequest.of(0, 10)));
+
+        Page<AdminUserResponse> result = adminService.getUsers(0, 10, "missing");
+
+        assertEquals(0, result.getTotalElements());
+        assertTrue(result.getContent().isEmpty());
+    }
+
+    @Test
+    void getUsersShouldDefaultNullRoleToUser() {
+        User user = user(1L, "legacy", null, true);
+        when(userRepository.findAll(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(user)));
+
+        Page<AdminUserResponse> result = adminService.getUsers(0, 10, null);
+
+        assertEquals(Role.USER, result.getContent().get(0).getRole());
+    }
+
+    @Test
+    void updateRoleShouldThrowWhenUserDoesNotExist() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> adminService.updateRole(99L, Role.ADMIN, "admin"));
+
+        assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    void updateRoleShouldPromoteUserToAdmin() {
+        User user = user(2L, "intern", Role.USER, true);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        AdminUserResponse response = adminService.updateRole(2L, Role.ADMIN, "admin");
+
+        assertEquals(Role.ADMIN, response.getRole());
+        assertEquals(Role.ADMIN, user.getRole());
+    }
+
+    @Test
+    void updateRoleShouldAllowDemotingAdminWhenAnotherAdminExists() {
+        User admin = user(2L, "other-admin", Role.ADMIN, true);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(admin));
+        when(userRepository.countByRole(Role.ADMIN)).thenReturn(2L);
+        when(userRepository.save(admin)).thenReturn(admin);
+
+        AdminUserResponse response = adminService.updateRole(2L, Role.USER, "admin");
+
+        assertEquals(Role.USER, response.getRole());
+    }
+
+    @Test
+    void updateStatusShouldThrowWhenUserDoesNotExist() {
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> adminService.updateStatus(99L, false, "admin"));
+
+        assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    void updateStatusShouldUnlockUser() {
+        User user = user(2L, "intern", Role.USER, false);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        AdminUserResponse response = adminService.updateStatus(2L, true, "admin");
+
+        assertTrue(response.isEnabled());
+        assertTrue(user.isEnabled());
+    }
+
+    @Test
+    void updateStatusShouldAllowLockingAdminWhenAnotherAdminExists() {
+        User admin = user(2L, "other-admin", Role.ADMIN, true);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(admin));
+        when(userRepository.countByRole(Role.ADMIN)).thenReturn(2L);
+        when(userRepository.save(admin)).thenReturn(admin);
+
+        AdminUserResponse response = adminService.updateStatus(2L, false, "admin");
+
+        assertFalse(response.isEnabled());
+        assertFalse(admin.isEnabled());
     }
 
     private User user(Long id, String username, Role role, boolean enabled) {

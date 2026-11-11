@@ -1,5 +1,6 @@
-package com.fn_tracking.fitnessapi.exception;
+package com.fn_tracking.fitnessapi.unit.exception;
 
+import com.fn_tracking.fitnessapi.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.fn_tracking.fitnessapi.service;
+package com.fn_tracking.fitnessapi.unit.service;
 
 import com.fn_tracking.fitnessapi.dto.AuthResponse;
 import com.fn_tracking.fitnessapi.dto.LoginRequest;
@@ -7,6 +7,7 @@ import com.fn_tracking.fitnessapi.entity.Role;
 import com.fn_tracking.fitnessapi.entity.User;
 import com.fn_tracking.fitnessapi.repository.UserRepository;
 import com.fn_tracking.fitnessapi.security.JwtTokenProvider;
+import com.fn_tracking.fitnessapi.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

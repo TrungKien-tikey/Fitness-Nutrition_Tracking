@@ -1,9 +1,10 @@
-package com.fn_tracking.fitnessapi.service;
+package com.fn_tracking.fitnessapi.unit.service;
 
 import com.fn_tracking.fitnessapi.dto.DailyLogCheckInRequest;
 import com.fn_tracking.fitnessapi.entity.DailyLog;
 import com.fn_tracking.fitnessapi.entity.User;
 import com.fn_tracking.fitnessapi.repository.DailyLogRepository;
+import com.fn_tracking.fitnessapi.service.DailyLogService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

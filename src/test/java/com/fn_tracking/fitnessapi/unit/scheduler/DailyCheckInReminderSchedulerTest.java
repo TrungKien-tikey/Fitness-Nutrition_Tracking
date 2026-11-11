@@ -1,9 +1,10 @@
-package com.fn_tracking.fitnessapi.scheduler;
+package com.fn_tracking.fitnessapi.unit.scheduler;
 
 import com.fn_tracking.fitnessapi.entity.DailyLog;
 import com.fn_tracking.fitnessapi.entity.User;
 import com.fn_tracking.fitnessapi.repository.DailyLogRepository;
 import com.fn_tracking.fitnessapi.repository.UserRepository;
+import com.fn_tracking.fitnessapi.scheduler.DailyCheckInReminderScheduler;
 import com.fn_tracking.fitnessapi.service.ReminderNotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

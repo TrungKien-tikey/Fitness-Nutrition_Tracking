@@ -1,4 +1,4 @@
-package com.fn_tracking.fitnessapi.service;
+package com.fn_tracking.fitnessapi.unit.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fn_tracking.fitnessapi.dto.DietPlanGenerationRequest;
@@ -8,6 +8,7 @@ import com.fn_tracking.fitnessapi.entity.HealthMetric;
 import com.fn_tracking.fitnessapi.entity.User;
 import com.fn_tracking.fitnessapi.repository.DietPlanRepository;
 import com.fn_tracking.fitnessapi.repository.HealthMetricRepository;
+import com.fn_tracking.fitnessapi.service.DietPlanService;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;

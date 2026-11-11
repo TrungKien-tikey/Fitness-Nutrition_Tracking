@@ -1,5 +1,7 @@
-package com.fn_tracking.fitnessapi.security;
+package com.fn_tracking.fitnessapi.unit.security;
 
+import com.fn_tracking.fitnessapi.security.JwtAuthenticationFilter;
+import com.fn_tracking.fitnessapi.security.JwtTokenProvider;
 import com.fn_tracking.fitnessapi.service.UserDetailsServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
