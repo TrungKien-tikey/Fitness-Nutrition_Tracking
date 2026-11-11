@@ -3,6 +3,7 @@ package com.fn_tracking.fitnessapi.service;
 import com.fn_tracking.fitnessapi.dto.AuthResponse;
 import com.fn_tracking.fitnessapi.dto.LoginRequest;
 import com.fn_tracking.fitnessapi.dto.RegisterRequest;
+import com.fn_tracking.fitnessapi.entity.Role;
 import com.fn_tracking.fitnessapi.entity.User;
 import com.fn_tracking.fitnessapi.repository.UserRepository;
 import com.fn_tracking.fitnessapi.security.JwtTokenProvider;
@@ -66,6 +67,8 @@ class AuthServiceTest {
         assertEquals("john", userCaptor.getValue().getUsername());
         assertEquals("john@example.com", userCaptor.getValue().getEmail());
         assertEquals("encoded-secret", userCaptor.getValue().getPassword());
+        assertEquals(Role.USER, userCaptor.getValue().getRole());
+        assertTrue(userCaptor.getValue().isEnabled());
     }
 
     @Test
@@ -143,5 +146,27 @@ class AuthServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> authService.login(request));
 
         assertEquals("Invalid username or password", exception.getMessage());
+    }
+
+    @Test
+    void loginShouldRejectDisabledAccount() {
+        LoginRequest request = new LoginRequest();
+        request.setUsername("john");
+        request.setPassword("secret123");
+
+        User user = User.builder()
+                .id(1L)
+                .username("john")
+                .email("john@example.com")
+                .password("encoded-secret")
+                .enabled(false)
+                .build();
+
+        when(userRepository.findByUsername("john")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("secret123", "encoded-secret")).thenReturn(true);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> authService.login(request));
+
+        assertEquals("Account is locked", exception.getMessage());
     }
 }

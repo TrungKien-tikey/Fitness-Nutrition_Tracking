@@ -127,4 +127,25 @@ class JwtAuthenticationFilterTest {
         assertNotNull(chain.getRequest());
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
+
+    @Test
+    void disabledUserShouldNotBeAuthenticated() throws Exception {
+        when(tokenProvider.validateToken("valid-token")).thenReturn(true);
+        when(tokenProvider.getUsernameFromToken("valid-token")).thenReturn("locked");
+        UserDetails user = User.withUsername("locked")
+                .password("encoded-password")
+                .disabled(true)
+                .authorities("ROLE_USER")
+                .build();
+        when(userDetailsService.loadUserByUsername("locked")).thenReturn(user);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/daily-logs/history");
+        request.addHeader("Authorization", "Bearer valid-token");
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(request, new MockHttpServletResponse(), chain);
+
+        assertNotNull(chain.getRequest());
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+    }
 }

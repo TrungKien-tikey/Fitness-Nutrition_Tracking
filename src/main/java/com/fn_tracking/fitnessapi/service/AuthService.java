@@ -45,6 +45,9 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid username or password");
         }
+        if (!user.isEnabled()) {
+            throw new RuntimeException("Account is locked");
+        }
 
         // Sinh JWT Token trả về cho client
         String token = tokenProvider.generateToken(user.getUsername());
