@@ -1,5 +1,6 @@
 package com.fn_tracking.fitnessapi.service;
 
+import com.fn_tracking.fitnessapi.entity.Role;
 import com.fn_tracking.fitnessapi.entity.User;
 import com.fn_tracking.fitnessapi.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -31,6 +33,7 @@ class UserDetailsServiceImplTest {
         User user = User.builder()
                 .username("john")
                 .password("encoded-secret")
+                .role(Role.USER)
                 .build();
         when(userRepository.findByUsername("john")).thenReturn(Optional.of(user));
 
@@ -38,7 +41,25 @@ class UserDetailsServiceImplTest {
 
         assertEquals("john", userDetails.getUsername());
         assertEquals("encoded-secret", userDetails.getPassword());
-        assertTrue(userDetails.getAuthorities().isEmpty());
+        assertTrue(userDetails.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_USER")));
+        assertTrue(userDetails.isEnabled());
+    }
+
+    @Test
+    void loadUserByUsernameShouldReturnAdminAuthorityAndDisabledFlag() {
+        User user = User.builder()
+                .username("admin")
+                .password("encoded-secret")
+                .role(Role.ADMIN)
+                .enabled(false)
+                .build();
+        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(user));
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername("admin");
+
+        assertEquals("ROLE_ADMIN", userDetails.getAuthorities().iterator().next().getAuthority());
+        assertFalse(userDetails.isEnabled());
     }
 
     @Test

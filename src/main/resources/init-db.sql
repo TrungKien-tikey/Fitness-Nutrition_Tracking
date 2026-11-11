@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
+    role VARCHAR(20) NOT NULL DEFAULT 'USER',
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -42,7 +44,12 @@ CREATE TABLE IF NOT EXISTS daily_logs (
 );
 
 -- 5. Chèn dữ liệu mẫu (Seed Data) để tiện test
--- Tài khoản demo: intern_test / secret123
-INSERT INTO users (id, username, password, email) 
-VALUES (1, 'intern_test', '$2a$10$c0aWpKL7NMrXKR6wwfYIwO9Ju2qNMh40qDespWrGjRznrBpNHNc1O', 'test@fitness.com')
+-- Tài khoản demo: intern_test / secret123 (USER)
+INSERT INTO users (id, username, password, email, role, enabled)
+VALUES (1, 'intern_test', '$2a$10$c0aWpKL7NMrXKR6wwfYIwO9Ju2qNMh40qDespWrGjRznrBpNHNc1O', 'test@fitness.com', 'USER', TRUE)
+ON DUPLICATE KEY UPDATE id=id;
+
+-- Tài khoản quản trị: admin / secret123 (ADMIN)
+INSERT INTO users (id, username, password, email, role, enabled)
+VALUES (2, 'admin', '$2a$10$c0aWpKL7NMrXKR6wwfYIwO9Ju2qNMh40qDespWrGjRznrBpNHNc1O', 'admin@fitness.com', 'ADMIN', TRUE)
 ON DUPLICATE KEY UPDATE id=id;

@@ -37,6 +37,15 @@ public class User {
     @Column(unique = true, nullable = false, length = 100)
     private String email;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20, columnDefinition = "varchar(20) default 'USER'")
+    @Builder.Default
+    private Role role = Role.USER;
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    @Builder.Default
+    private boolean enabled = true;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
