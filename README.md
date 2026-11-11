@@ -1,5 +1,7 @@
 # Fitness & Nutrition Tracking API
 
+[![CI](https://github.com/TrungKien-tikey/Fitness-Nutrition_Tracking/actions/workflows/ci.yml/badge.svg)](https://github.com/TrungKien-tikey/Fitness-Nutrition_Tracking/actions/workflows/ci.yml)
+
 Hệ thống backend theo dõi chỉ số sức khỏe, tính toán nhu cầu dinh dưỡng và tạo thực đơn cá nhân hóa bằng AI dựa trên mục tiêu thể hình của người dùng.
 
 ## 1. Giới thiệu
@@ -8,24 +10,32 @@ Fitness & Nutrition Tracking API cung cấp nền tảng theo dõi sức khỏe 
 
 - Người dùng có thể đăng ký, đăng nhập và xác thực bằng JWT.
 - Hệ thống tự động tính BMI, BMR và TDEE từ chiều cao, cân nặng, tuổi, giới tính và mức vận động.
-- Người dùng có thể tạo thực đơn 7 ngày bằng AI (Google Gemini) theo mục tiêu giảm cân, duy trì hoặc tăng cơ.
+- Người dùng có thể tạo thực đơn 7 ngày bằng AI (Google Gemini) theo mục tiêu giảm cân, duy trì hoặc tăng cơ sau khi đã tính chỉ số sức khỏe.
 - Người dùng check-in lượng calo nạp vào và cân nặng hằng ngày, xem lại lịch sử gần đây.
-- Một tiến trình nền tự động nhắc nhở người dùng chưa check-in vào 20:00 mỗi ngày.
-- Tài liệu API được công bố qua OpenAPI/Swagger UI, có thể xem trực tuyến qua GitHub Pages.
+- Một tiến trình nền tự động phát hiện người dùng chưa check-in vào 20:00 mỗi ngày và ghi log nhắc nhở.
+- Tài liệu API được cung cấp qua OpenAPI/Swagger UI và công bố trực tuyến qua GitHub Pages.
 
 ## 2. Chức năng chính
 
-- Đăng ký, đăng nhập và xác thực người dùng bằng JWT.
-- Phân quyền request theo token; các API nghiệp vụ yêu cầu Bearer token.
-- Quản lý thông tin người dùng.
+- Đăng ký tài khoản người dùng mới.
+- Đăng nhập và xác thực người dùng.
+- Bảo vệ các chức năng nghiệp vụ, chỉ người dùng đã đăng nhập mới sử dụng được.
 - Tính toán và lưu chỉ số sức khỏe: BMI, BMR, TDEE.
-- Tạo thực đơn 7 ngày bằng AI và lưu lại theo từng người dùng.
-- Xem thực đơn mới nhất của người dùng.
-- Check-in dinh dưỡng hằng ngày và xem lịch sử check-in.
-- Scheduler tự động gửi nhắc nhở cho người dùng chưa check-in.
-- Kiểm thử đơn vị cho các service và scheduler.
-- Bộ kiểm thử API bằng Postman cho tất cả endpoint (bao gồm trường hợp lỗi và xác thực).
-- Tài liệu API tự động bằng Springdoc OpenAPI và Swagger UI.
+- Tạo thực đơn 7 ngày bằng AI theo mục tiêu thể hình sau khi đã tính chỉ số sức khỏe.
+- Lưu và xem lại thực đơn mới nhất của từng người dùng.
+- Check-in dinh dưỡng hằng ngày.
+- Xem lịch sử check-in theo số ngày gần đây.
+- Tự động phát hiện người dùng chưa check-in vào 20:00 hằng ngày và ghi log nhắc nhở.
+- Phân quyền người dùng và quản trị viên (`USER` / `ADMIN`), bảo vệ API quản trị.
+- Quản trị viên xem danh sách người dùng, đổi vai trò và khóa/mở khóa tài khoản.
+- Thống kê tổng quan hệ thống: người dùng, lượt check-in và thực đơn AI cho quản trị viên.
+
+### Kiểm thử và tài liệu
+
+- Kiểm thử đơn vị cho các xử lý nghiệp vụ và tiến trình nhắc nhở.
+- Kiểm thử tích hợp cho luồng đăng ký/đăng nhập, bảo mật, nghiệp vụ chính và phân quyền quản trị.
+- Bộ kiểm thử API bằng Postman cho toàn bộ chức năng, bao gồm trường hợp lỗi và xác thực.
+- Tài liệu API hỗ trợ xem và thử gọi trực tiếp.
 
 ## 3. Công nghệ sử dụng
 
@@ -44,7 +54,7 @@ Fitness & Nutrition Tracking API cung cấp nền tảng theo dõi sức khỏe 
 ### AI
 
 - LangChain4j 0.36.2
-- Google Gemini (`gemini-1.5-flash`)
+- Google Gemini (`gemini-3.5-flash`)
 
 ### Hạ tầng và công cụ
 
@@ -53,6 +63,7 @@ Fitness & Nutrition Tracking API cung cấp nền tảng theo dõi sức khỏe 
 - phpMyAdmin
 - Maven Wrapper
 - JUnit 5 và Mockito
+- H2 (integration test)
 - Postman (kiểm thử API)
 
 ### Frontend
@@ -70,9 +81,9 @@ Hệ thống là một ứng dụng Spring Boot dạng monolith phân tầng. Re
 | Package | Chức năng |
 |---|---|
 | `config` | Cấu hình Spring Security, JWT, OpenAPI, LangChain4j |
-| `controller` | REST Controllers cho auth, health metrics, diet plans, daily logs |
+| `controller` | REST Controllers cho auth, health metrics, diet plans, daily logs, admin |
 | `dto` | Request/Response và enum (`ActivityLevel`, `FitnessGoal`) |
-| `entity` | Thực thể JPA: `User`, `HealthMetric`, `DietPlan`, `DailyLog` |
+| `entity` | Thực thể JPA: `User`, `HealthMetric`, `DietPlan`, `DailyLog`; enum `Role` |
 | `repository` | Spring Data JPA repositories |
 | `security` | JWT filter và token provider |
 | `service` | Xử lý nghiệp vụ và tích hợp AI |
@@ -83,7 +94,7 @@ Hệ thống là một ứng dụng Spring Boot dạng monolith phân tầng. Re
 
 | Bảng | Quan hệ | Mô tả |
 |---|---|---|
-| `users` | 1:1 `health_metrics`, 1:N `diet_plans`, 1:N `daily_logs` | Thông tin tài khoản |
+| `users` | 1:1 `health_metrics`, 1:N `diet_plans`, 1:N `daily_logs` | Tài khoản, vai trò `USER`/`ADMIN`, trạng thái khóa |
 | `health_metrics` | thuộc 1 `user` | Chiều cao, cân nặng, BMI, BMR, TDEE |
 | `diet_plans` | thuộc 1 `user` | Mục tiêu và thực đơn 7 ngày (JSON) |
 | `daily_logs` | thuộc 1 `user` | Calo nạp vào và cân nặng theo ngày |
@@ -115,7 +126,7 @@ Các giá trị nhạy cảm được tách khỏi code và nạp từ file `.en
    DB_PASSWORD=your_password
    MYSQL_ROOT_PASSWORD=your_password
    GEMINI_API_KEY=your_gemini_api_key
-   GEMINI_MODEL=gemini-1.5-flash
+   GEMINI_MODEL=gemini-3.5-flash
    JWT_SECRET=your_jwt_secret
    JWT_EXPIRATION=86400000
    ```
@@ -126,7 +137,7 @@ Các giá trị nhạy cảm được tách khỏi code và nạp từ file `.en
    copy src\main\resources\application.properties.example src\main\resources\application.properties
    ```
 
-`application.properties` đọc các biến từ `.env` qua dòng `spring.config.import=optional:file:.env[.properties]`. Khi chạy bằng Docker Compose, các biến trong `.env` được truyền vào container qua `docker-compose.yml`.
+`application.properties` đọc các biến từ `.env` qua dòng `spring.config.import=optional:file:.env[.properties]`. Khi chạy bằng Docker Compose, các biến `DB_USERNAME`, `DB_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `JWT_SECRET`, `JWT_EXPIRATION` được truyền vào container qua `docker-compose.yml`. Riêng `DB_URL` không được truyền vào container vì Compose cố định `SPRING_DATASOURCE_URL` trỏ tới service `fitness-db`; `DB_URL` chỉ dùng khi chạy backend trực tiếp bằng Maven.
 
 > Không commit `.env` hoặc `application.properties`. Chỉ commit các file `.example`.
 
@@ -144,7 +155,7 @@ Hoặc khởi chạy toàn bộ hệ thống bằng Docker (cần build JAR trư
 docker compose up -d --build
 ```
 
-Database được khởi tạo từ [`src/main/resources/init-db.sql`](src/main/resources/init-db.sql).
+Khi volume MySQL được khởi tạo lần đầu, database được tạo từ [`src/main/resources/init-db.sql`](src/main/resources/init-db.sql). Nếu volume đã tồn tại, script không chạy lại. Tài khoản demo có sẵn: `intern_test` / `secret123` (USER) và `admin` / `secret123` (ADMIN).
 
 Các địa chỉ truy cập:
 
@@ -154,12 +165,14 @@ Các địa chỉ truy cập:
 | phpMyAdmin | http://localhost:8085 |
 | MySQL | `localhost:3306` |
 
-Thông tin mặc định trong `docker-compose.yml`:
+`docker-compose.yml` không đặt mật khẩu mặc định. Cần khai báo trong `.env`:
 
 ```text
 MySQL database: fitness_db
 MySQL username: root
-MySQL password: 123
+MYSQL_ROOT_PASSWORD: mật khẩu root MySQL
+DB_PASSWORD: mật khẩu backend dùng để kết nối MySQL
+             (nên đặt giống MYSQL_ROOT_PASSWORD)
 ```
 
 ### Chạy backend trực tiếp bằng Maven
@@ -194,18 +207,26 @@ docker compose up -d --build
 ### Chạy kiểm thử
 
 ```bash
-mvnw.cmd test
+mvnw.cmd verify
 ```
+
+`verify` chạy unit test bằng Surefire và integration test bằng Failsafe. Muốn chỉ chạy unit test, dùng `mvnw.cmd test`.
+
+Cấu trúc test:
+
+- `src/test/java/.../unit/`: unit test, chạy bởi Surefire.
+- `src/test/java/.../integration/`: integration test, chạy bởi Failsafe.
 
 ### Kiểm thử API bằng Postman
 
-Bộ collection nằm tại [`postman/Fitness_Nutrition.postman_collection.json`](postman/Fitness_Nutrition.postman_collection.json), gồm 4 folder: `Auth`, `Health Metrics`, `Diet Plans`, `Daily Logs`.
+Bộ collection nằm tại [`postman/Fitness_Nutrition.postman_collection.json`](postman/Fitness_Nutrition.postman_collection.json), gồm 5 folder: `Auth`, `Health Metrics`, `Diet Plans`, `Daily Logs`, `Admin`.
 
-1. Mở Postman, chọn **Import** và trỏ tới file collection trên.
-2. Đảm bảo backend đang chạy tại `http://localhost:8081` (biến `base_url` trong collection).
-3. Chạy toàn bộ collection (Runner) hoặc từng request/folder tùy ý.
+1. Mở Postman, chọn **Import** và trỏ tới file collection trên, cùng file environment [`postman/Local.postman_environment.json`](postman/Local.postman_environment.json).
+2. Chọn environment **Fitness Local** ở góc trên phải Postman. Nếu không chọn environment, token chỉ lưu tạm trong collection variable và không hiện ở mục Environment.
+3. Đảm bảo backend đang chạy tại `base_url` (mặc định `http://localhost:8081`).
+4. Chạy toàn bộ collection (Runner) hoặc từng request/folder tùy ý.
 
-Collection tự động đăng nhập trước các request cần xác thực: nếu tài khoản kiểm thử chưa tồn tại, collection tự đăng ký rồi lấy token và lưu vào biến `bearer_token`. Vì vậy không cần chạy `Login` thủ công hay copy token.
+Mỗi folder cần xác thực (`Health Metrics`, `Diet Plans`, `Daily Logs`) có request `Login` đầu tiên. Folder `Admin` có `Login_Admin` và `Login_NormalUser` để kiểm tra cả trường hợp được phép và bị từ chối. Sau khi Login thành công, token được lưu vào Collection Variable và Environment Variable tương ứng, nên các request sau tự dùng token mà không cần copy tay. Collection cũng có auto-login dự phòng khi `bearer_token` đang trống.
 
 Thông tin tài khoản kiểm thử (giá trị giả, chỉ dùng cho môi trường local):
 
@@ -213,11 +234,14 @@ Thông tin tài khoản kiểm thử (giá trị giả, chỉ dùng cho môi tr�
 username: test_user
 password: Test@12345
 email:    test_user@example.com
+
+admin username: admin
+admin password: secret123
 ```
 
 > Mật khẩu trên là tài khoản test cục bộ, không phải thông tin thật nên không cần ẩn. Nếu muốn tách khỏi collection, có thể chuyển `test_username`, `test_password`, `test_email` sang Postman Environment và không commit file environment đó.
 
-> Folder `Diet Plans` cần `GEMINI_API_KEY` hợp lệ trong `.env` để tạo thực đơn; nếu chưa có key, test của endpoint này chấp nhận phản hồi `400` (AI chưa cấu hình) thay vì `200`.
+> Folder `Diet Plans` cần `GEMINI_API_KEY` hợp lệ trong `.env` để tạo thực đơn. Test `Generate` kỳ vọng `200` kèm thực đơn đúng 7 ngày; nếu key sai/hết hạn hoặc model không còn hỗ trợ, test sẽ fail để phát hiện lỗi cấu hình.
 
 ### Tài liệu API
 
@@ -227,7 +251,7 @@ email:    test_user@example.com
 - **Swagger UI khi backend đang chạy:** http://localhost:8081/swagger-ui.html
 - **OpenAPI JSON khi backend đang chạy:** http://localhost:8081/v3/api-docs
 
-> Trang GitHub Pages được phục vụ từ thư mục `docs/` và nạp `openapi.yaml` vào Swagger UI. Nút "Try it out" chỉ gọi được API khi backend đang chạy.
+> Trang GitHub Pages được phục vụ từ thư mục `docs/` và nạp `openapi.yaml` vào Swagger UI. Nút "Try it out" chỉ gọi được API khi backend được deploy công khai và cấu hình CORS cho domain Pages.
 
 ### Danh sách API
 
@@ -236,10 +260,14 @@ email:    test_user@example.com
 | `POST` | `/api/auth/register` | Không | Đăng ký tài khoản |
 | `POST` | `/api/auth/login` | Không | Đăng nhập, nhận JWT |
 | `POST` | `/api/health-metrics/calculate` | Bearer | Tính BMI, BMR, TDEE |
-| `POST` | `/api/diet-plans/generate` | Bearer | Tạo thực đơn 7 ngày bằng AI |
+| `POST` | `/api/diet-plans/generate` | Bearer | Tạo thực đơn 7 ngày bằng AI (cần có health metrics trước) |
 | `GET` | `/api/diet-plans/latest` | Bearer | Lấy thực đơn mới nhất |
 | `POST` | `/api/daily-logs/check-in` | Bearer | Check-in dinh dưỡng hằng ngày |
 | `GET` | `/api/daily-logs/history?days=7` | Bearer | Xem lịch sử check-in |
+| `GET` | `/api/admin/users?page=0&size=10` | Bearer + ADMIN | Danh sách người dùng, phân trang/tìm kiếm |
+| `PUT` | `/api/admin/users/{id}/role` | Bearer + ADMIN | Đổi vai trò người dùng |
+| `PUT` | `/api/admin/users/{id}/status` | Bearer + ADMIN | Khóa/mở khóa tài khoản |
+| `GET` | `/api/admin/stats` | Bearer + ADMIN | Thống kê tổng quan hệ thống |
 
 ## 6. Kết quả, hạn chế và hướng phát triển
 
@@ -249,8 +277,13 @@ email:    test_user@example.com
 - Hoàn thành chức năng tính toán và lưu chỉ số BMI, BMR, TDEE.
 - Tích hợp Google Gemini để sinh thực đơn 7 ngày dạng JSON.
 - Hoàn thành chức năng check-in dinh dưỡng và xem lịch sử.
-- Tích hợp scheduler nhắc nhở người dùng chưa check-in lúc 20:00.
-- Có unit test cho các service và scheduler bằng JUnit 5 và Mockito.
+- Tích hợp scheduler phát hiện người dùng chưa check-in lúc 20:00 và ghi log nhắc nhở.
+- Phân quyền `USER` / `ADMIN`, bảo vệ API quản trị bằng `@PreAuthorize`.
+- Quản trị viên xem danh sách người dùng có phân trang/tìm kiếm, đổi vai trò và khóa/mở khóa tài khoản.
+- Thống kê tổng quan hệ thống: người dùng, lượt check-in, thực đơn AI và số người chưa check-in hôm nay.
+- Có 58 unit test cho service, bảo mật, scheduler và xử lý lỗi bằng JUnit 5 và Mockito.
+- Có 13 integration test cho luồng đăng ký/đăng nhập, bảo mật, nghiệp vụ chính và phân quyền quản trị bằng H2 và MockMvc.
+- Có workflow CI chạy test tự động trên GitHub Actions.
 - Có xử lý lỗi toàn cục và validate dữ liệu đầu vào.
 - Có tài liệu OpenAPI/Swagger UI, công bố trực tuyến qua GitHub Pages.
 - Đóng gói được ứng dụng bằng Docker và Docker Compose.
@@ -259,19 +292,25 @@ email:    test_user@example.com
 
 - Ứng dụng vẫn là monolith, chưa tách thành microservices.
 - Chưa có frontend; người dùng cần dùng Swagger UI hoặc client riêng.
+- Chưa có chức năng xem/cập nhật hồ sơ cá nhân; thông tin tài khoản chỉ được tạo khi đăng ký.
+- Kênh nhắc nhở mới dừng ở ghi log, chưa gửi email/thông báo thực tế.
 - Chức năng AI phụ thuộc vào API key và dịch vụ Google Gemini bên ngoài.
-- Chưa có refresh token và phân quyền theo vai trò.
+- Chưa có refresh token và phân quyền chi tiết theo permission.
+- Chưa có audit log cho các thao tác quản trị.
+- Chưa phân biệt rõ mã lỗi 401/403/404; phần lớn lỗi nghiệp vụ trả về 400.
 - Dockerfile cần file JAR build sẵn, chưa build đa tầng (multi-stage build).
-- Chưa có quy trình CI/CD hoàn chỉnh.
+- Chưa có quy trình CD (tự động deploy); CI mới dừng ở chạy test.
 
 ### Hướng phát triển trong tương lai
 
 - Bổ sung frontend để người dùng thao tác trực quan.
-- Phân quyền theo vai trò (người dùng, huấn luyện viên, quản trị viên).
+- Bổ sung chức năng xem và cập nhật hồ sơ cá nhân.
+- Gửi nhắc nhở qua email hoặc thông báo thay vì chỉ ghi log.
+- Mở rộng phân quyền chi tiết theo permission và bổ sung audit log cho quản trị viên.
 - Thêm refresh token và thu hồi token.
-- Chuyển cấu hình sang biến môi trường/secret manager.
-- Tăng độ phủ unit test và bổ sung integration test.
-- Xây dựng CI/CD bằng GitHub Actions.
+- Chuyển các giá trị nhạy cảm sang secret manager.
+- Tăng độ phủ unit test và bổ sung integration test cho luồng tạo thực đơn bằng AI.
+- Bổ sung CD (tự động deploy) và mở rộng quy trình CI.
 - Dùng multi-stage build cho Docker image.
-- Bổ sung phân trang, cache và giới hạn tần suất request.
+- Bổ sung phân trang cho các danh sách còn lại, cache và giới hạn tần suất request.
 - Hoàn thiện phân tích tiến độ và gợi ý dinh dưỡng bằng AI.
